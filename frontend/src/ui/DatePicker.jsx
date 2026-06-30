@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useClickOutside from './useClickOutside';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const MONTHS = [
@@ -16,7 +16,6 @@ function toDateString(date) {
 
 function DatePicker({ label, value, onChange, placeholder = 'Select date' }) {
   const [open, setOpen] = useState(false);
-  const ref = useClickOutside(() => setOpen(false));
 
   const selectedDate = value ? new Date(value + 'T00:00:00') : null;
   const [viewDate, setViewDate] = useState(selectedDate || new Date());
@@ -47,73 +46,75 @@ function DatePicker({ label, value, onChange, placeholder = 'Select date' }) {
   }
 
   return (
-    <div className="flex flex-col gap-1.5" ref={ref}>
+    <div className="flex flex-col gap-1.5">
       {label && <label className="text-sm font-medium text-gray-300">{label}</label>}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="
-            w-full bg-gray-800 text-gray-100 border-2 border-gray-700
-            rounded-lg px-3 py-2 text-sm text-left
-            outline-none transition-colors duration-150
-            focus:border-indigo-500
-          "
-        >
-          <span className={value ? '' : 'text-gray-500'}>
-            {value || placeholder}
-          </span>
-        </button>
 
-        {open && (
-          <div className="absolute z-50 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-3 w-64">
-            <div className="flex items-center justify-between mb-2">
-              <button
-                type="button"
-                onClick={() => setViewDate(new Date(year, month - 1, 1))}
-                className="text-gray-400 hover:text-gray-100 px-2"
-              >
-                ‹
-              </button>
-              <span className="text-sm font-medium text-gray-200">
-                {MONTHS[month]} {year}
-              </span>
-              <button
-                type="button"
-                onClick={() => setViewDate(new Date(year, month + 1, 1))}
-                className="text-gray-400 hover:text-gray-100 px-2"
-              >
-                ›
-              </button>
-            </div>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`
+          w-full bg-gray-800 text-gray-100 border-2 rounded-lg px-3 py-2 text-sm text-left
+          outline-none transition-colors duration-150 flex items-center justify-between
+          ${open ? 'border-indigo-500 rounded-b-none' : 'border-gray-700'}
+        `}
+      >
+        <span className={value ? '' : 'text-gray-500'}>{value || placeholder}</span>
+        <Calendar size={15} className="text-gray-500" />
+      </button>
 
-            <div className="grid grid-cols-7 gap-1 mb-1">
-              {DAYS.map((d, i) => (
-                <div key={i} className="text-center text-xs text-gray-500 font-medium py-1">
-                  {d}
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7 gap-1">
-              {cells.map((day, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  disabled={!day}
-                  onClick={() => day && selectDay(day)}
-                  className={`
-                    text-xs rounded-md py-1.5 transition-colors duration-100
-                    ${!day ? 'invisible' : 'text-gray-200 hover:bg-gray-700'}
-                    ${isSelected(day) ? 'bg-indigo-500 text-white hover:bg-indigo-500' : ''}
-                  `}
-                >
-                  {day}
-                </button>
-              ))}
-            </div>
+      <div
+        className={`
+          overflow-hidden transition-all duration-200 ease-out
+          ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
+        `}
+      >
+        <div className="bg-gray-800 border-2 border-t-0 border-indigo-500 rounded-b-lg p-3">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              type="button"
+              onClick={() => setViewDate(new Date(year, month - 1, 1))}
+              className="text-gray-400 hover:text-gray-100 p-1.5 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="text-sm font-semibold text-gray-100">
+              {MONTHS[month]} {year}
+            </span>
+            <button
+              type="button"
+              onClick={() => setViewDate(new Date(year, month + 1, 1))}
+              className="text-gray-400 hover:text-gray-100 p-1.5 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
-        )}
+
+          <div className="grid grid-cols-7 gap-1 mb-1">
+            {DAYS.map((d, i) => (
+              <div key={i} className="text-center text-xs text-gray-500 font-medium py-1">
+                {d}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {cells.map((day, i) => (
+              <button
+                key={i}
+                type="button"
+                disabled={!day}
+                onClick={() => day && selectDay(day)}
+                className={`
+                  text-xs rounded-lg py-2 transition-colors duration-100
+                  ${!day ? 'invisible' : 'text-gray-200 hover:bg-gray-700'}
+                  ${isSelected(day) ? 'bg-indigo-500 text-white hover:bg-indigo-500' : ''}
+                `}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
