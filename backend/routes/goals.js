@@ -57,4 +57,37 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PATCH a goal (edit title / target_date)
+router.patch('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, target_date } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE goals SET
+        title = COALESCE($1, title),
+        target_date = COALESCE($2, target_date)
+       WHERE id = $3 RETURNING *`,
+      [title, target_date, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Goal not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update goal' });
+  }
+});
+
+// DELETE a goal (tasks survive, orphaned via ON DELETE SET NULL on goal_id)
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(`DELETE FROM goals WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Goal not found' });
+    res.json({ message: 'Goal deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete goal' });
+  }
+});
+
 export default router;
