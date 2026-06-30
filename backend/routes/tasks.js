@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../db/pool.js';
+import { requireString, optionalString, requireDateString, optionalDateString, optionalInt, optionalBoolean } from '../middleware/validate.js';
 
 const router = express.Router();
 
@@ -45,9 +46,19 @@ router.get('/:id', async (req, res) => {
 // POST new task
 router.post('/', async (req, res) => {
   const { title, due_date, goal_id, completed } = req.body;
-  if (!title || !due_date) {
-    return res.status(400).json({ error: 'Title and due_date are required' });
-  }
+
+  const titleError = requireString(title, 'title');
+  if (titleError) return res.status(400).json({ error: titleError });
+
+  const dateError = requireDateString(due_date, 'due_date');
+  if (dateError) return res.status(400).json({ error: dateError });
+
+  const goalIdError = optionalInt(goal_id, 'goal_id');
+  if (goalIdError) return res.status(400).json({ error: goalIdError });
+
+  const completedError = optionalBoolean(completed, 'completed');
+  if (completedError) return res.status(400).json({ error: completedError });
+
   try {
     const result = await pool.query(
       `INSERT INTO tasks (title, due_date, goal_id, completed) VALUES ($1, $2, $3, $4) RETURNING *`,
@@ -64,6 +75,19 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   const { id } = req.params;
   const { title, due_date, goal_id, completed } = req.body;
+
+  const titleError = optionalString(title, 'title');
+  if (titleError) return res.status(400).json({ error: titleError });
+
+  const dateError = optionalDateString(due_date, 'due_date');
+  if (dateError) return res.status(400).json({ error: dateError });
+
+  const goalIdError = optionalInt(goal_id, 'goal_id');
+  if (goalIdError) return res.status(400).json({ error: goalIdError });
+
+  const completedError = optionalBoolean(completed, 'completed');
+  if (completedError) return res.status(400).json({ error: completedError });
+
   try {
     const result = await pool.query(
       `UPDATE tasks SET
@@ -101,7 +125,10 @@ router.delete('/:id', async (req, res) => {
 router.post('/:taskId/subtasks', async (req, res) => {
   const { taskId } = req.params;
   const { text } = req.body;
-  if (!text) return res.status(400).json({ error: 'Text is required' });
+
+  const textError = requireString(text, 'text');
+  if (textError) return res.status(400).json({ error: textError });
+
   try {
     const result = await pool.query(
       `INSERT INTO subtasks (task_id, text) VALUES ($1, $2) RETURNING *`,
@@ -118,6 +145,13 @@ router.post('/:taskId/subtasks', async (req, res) => {
 router.patch('/:taskId/subtasks/:subtaskId', async (req, res) => {
   const { subtaskId } = req.params;
   const { checked, text } = req.body;
+
+  const checkedError = optionalBoolean(checked, 'checked');
+  if (checkedError) return res.status(400).json({ error: checkedError });
+
+  const textError = optionalString(text, 'text');
+  if (textError) return res.status(400).json({ error: textError });
+
   try {
     const result = await pool.query(
       `UPDATE subtasks SET

@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../db/pool.js';
+import { requireString, optionalString, optionalDateString } from '../middleware/validate.js';
 
 const router = express.Router();
 
@@ -43,7 +44,12 @@ router.get('/', async (req, res) => {
 // POST a new goal
 router.post('/', async (req, res) => {
   const { title, target_date } = req.body;
-  if (!title) return res.status(400).json({ error: 'Title is required' });
+
+  const titleError = requireString(title, 'title');
+  if (titleError) return res.status(400).json({ error: titleError });
+
+  const dateError = optionalDateString(target_date, 'target_date');
+  if (dateError) return res.status(400).json({ error: dateError });
 
   try {
     const result = await pool.query(
@@ -61,6 +67,13 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   const { id } = req.params;
   const { title, target_date } = req.body;
+
+  const titleError = optionalString(title, 'title');
+  if (titleError) return res.status(400).json({ error: titleError });
+
+  const dateError = optionalDateString(target_date, 'target_date');
+  if (dateError) return res.status(400).json({ error: dateError });
+
   try {
     const result = await pool.query(
       `UPDATE goals SET
