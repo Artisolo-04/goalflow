@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 function Modal({ open, onClose, title, children }) {
-  // Close on Escape key
   useEffect(() => {
     if (!open) return;
     function handleKey(e) {
@@ -11,8 +10,6 @@ function Modal({ open, onClose, title, children }) {
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
-
-  // Lock body scroll while modal is open, so background doesn't scroll behind it
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -29,13 +26,10 @@ function Modal({ open, onClose, title, children }) {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       onClick={onClose}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150" />
-
-      {/* Modal content — stopPropagation so clicking inside doesn't close it */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md max-h-[85vh] overflow-y-auto bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/50 animate-in zoom-in-95 fade-in duration-150"
+        className="relative w-full max-w-md max-h-[85vh] overflow-y-auto scrollbar-hide bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/50 animate-in zoom-in-95 fade-in duration-150"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 sticky top-0 bg-gray-900 rounded-t-2xl">
           <h2 className="text-lg font-semibold text-gray-100">{title}</h2>
