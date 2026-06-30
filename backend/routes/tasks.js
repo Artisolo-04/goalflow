@@ -5,6 +5,37 @@ import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
+// --- Tags (many-to-many with tasks) ---
+
+// POST assign a tag to a task
+router.post('/:taskId/tags', asyncHandler(async (req, res) => {
+  const { taskId } = req.params;
+  const { tag_id } = req.body;
+
+  if (!Number.isInteger(tag_id)) {
+    return res.status(400).json({ error: 'tag_id is required and must be an integer' });
+  }
+
+  const result = await pool.query(
+    `INSERT INTO task_tags (task_id, tag_id) VALUES ($1, $2)
+     ON CONFLICT (task_id, tag_id) DO NOTHING
+     RETURNING *`,
+    [taskId, tag_id]
+  );
+  res.status(201).json(result.rows[0] || { task_id: Number(taskId), tag_id, already_existed: true });
+}));
+
+// DELETE remove a tag from a task
+router.delete('/:taskId/tags/:tagId', asyncHandler(async (req, res) => {
+  const { taskId, tagId } = req.params;
+  const result = await pool.query(
+    `DELETE FROM task_tags WHERE task_id = $1 AND tag_id = $2 RETURNING *`,
+    [taskId, tagId]
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: 'Tag was not assigned to this task' });
+  res.json({ message: 'Tag removed from task' });
+}));
+
 // GET all tasks (optionally filter by due_date for calendar view)
 router.get('/', asyncHandler(async (req, res) => {
   const { due_date } = req.query;
@@ -31,7 +62,13 @@ router.get('/:id', asyncHandler(async (req, res) => {
     `SELECT * FROM subtasks WHERE task_id = $1 ORDER BY id ASC`,
     [id]
   );
-  res.json({ ...taskResult.rows[0], subtasks: subtasksResult.rows });
+  const tagsResult = await pool.query(
+    `SELECT t.id, t.name, t.color FROM tags t
+     JOIN task_tags tt ON tt.tag_id = t.id
+     WHERE tt.task_id = $1`,
+    [id]
+  );
+  res.json({ ...taskResult.rows[0], subtasks: subtasksResult.rows, tags: tagsResult.rows });
 }));
 
 // POST new task
