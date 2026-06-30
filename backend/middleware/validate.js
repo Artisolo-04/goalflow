@@ -1,6 +1,3 @@
-// Lightweight validation helpers — no external library needed for a project this size.
-// Each function either returns null (valid) or an error message string (invalid).
-
 export function requireString(value, fieldName) {
   if (typeof value !== 'string' || value.trim().length === 0) {
     return `${fieldName} is required and must be a non-empty string`;
