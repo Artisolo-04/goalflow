@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { Pool } = pkg;
+const { Pool, types } = pkg;
+
+types.setTypeParser(1082, (val) => val);
 
 const pool = new Pool({
   user: process.env.DB_USER,
