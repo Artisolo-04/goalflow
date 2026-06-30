@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import GoalsPage from './pages/GoalsPage'
 import TasksPage from './pages/TasksPage'
+import CalendarPage from './pages/CalendarPage'
 
 const TABS = [
   { id: 'goals', label: 'Goals' },
   { id: 'tasks', label: 'Tasks' },
+  { id: 'calendar', label: 'Calendar' },
 ]
 
 function App() {
@@ -30,6 +32,7 @@ function App() {
 
       {activeTab === 'goals' && <GoalsPage />}
       {activeTab === 'tasks' && <TasksPage />}
+      {activeTab === 'calendar' && <CalendarPage />}
     </div>
   )
 }
