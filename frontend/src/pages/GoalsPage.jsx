@@ -27,7 +27,7 @@ function GoalsPage() {
     await createGoal({ title, target_date: targetDate });
     setTitle('');
     setTargetDate(null);
-    loadGoals(); // refetch so progress/list stays in sync with the DB
+    loadGoals();
   }
 
   return (

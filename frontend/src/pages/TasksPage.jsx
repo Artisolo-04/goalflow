@@ -29,12 +29,12 @@ function TasksPage() {
   }, []);
 
   async function handleCreate() {
-    if (!title.trim() || !dueDate) return; // due_date is required by the backend
+    if (!title.trim() || !dueDate) return;
     await createTask({ title, due_date: dueDate, goal_id: goalId });
     setTitle('');
     setDueDate(null);
     setGoalId(null);
-    loadAll(); // refetch tasks AND goals, since a new linked task changes goal progress
+    loadAll();
   }
 
   const goalOptions = goals.map((g) => ({ label: g.title, value: g.id }));

@@ -9,7 +9,7 @@ function SubtaskChecklist({ taskId, subtasks, onChange }) {
 
   async function handleToggle(subtaskId, checked) {
     await updateSubtask(taskId, subtaskId, { checked });
-    onChange(); // tell parent to refetch, so goal progress stays accurate too
+    onChange();
   }
 
   async function handleAdd() {
