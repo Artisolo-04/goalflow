@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         g.title,
         g.target_date,
         g.created_at,
-        COALESCE(ROUND(AVG(task_progress.score) * 100), 0) AS progress
+        COALESCE(AVG(task_progress.score) * 100, 0) AS progress
       FROM goals g
       LEFT JOIN (
         SELECT
@@ -29,7 +29,11 @@ router.get('/', async (req, res) => {
       GROUP BY g.id
       ORDER BY g.created_at DESC;
     `);
-    res.json(result.rows);
+    const goals = result.rows.map(g => ({
+      ...g,
+      progress: Math.round(Number(g.progress)),
+    }));
+    res.json(goals);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch goals' });
