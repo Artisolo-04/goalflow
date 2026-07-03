@@ -3,24 +3,27 @@ import { ChevronDown, Trash2, CircleCheck, Circle } from 'lucide-react';
 import Checkbox from '../ui/Checkbox';
 import Tag from '../ui/Tag';
 import SubtaskChecklist from './SubtaskChecklist';
+import TagPicker from './TagPicker';
 import { updateTask, deleteTask, fetchTaskById } from '../api/tasks';
 
 function TaskItem({ task, onChange }) {
   const [expanded, setExpanded] = useState(false);
   const [subtasks, setSubtasks] = useState([]);
-  const [loadingSubtasks, setLoadingSubtasks] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
-  async function loadSubtasks() {
-    setLoadingSubtasks(true);
+  async function loadDetail() {
+    setLoadingDetail(true);
     const full = await fetchTaskById(task.id);
     setSubtasks(full.subtasks);
-    setLoadingSubtasks(false);
+    setTags(full.tags);
+    setLoadingDetail(false);
   }
 
   async function toggleExpand() {
     const next = !expanded;
     setExpanded(next);
-    if (next) await loadSubtasks();
+    if (next) await loadDetail();
   }
 
   async function handleToggleCompleted(checked) {
@@ -57,7 +60,7 @@ function TaskItem({ task, onChange }) {
           className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-400 px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors"
         >
           <ChevronDown size={13} className={`transition-transform duration-150 ${expanded ? 'rotate-180' : ''}`} />
-          Subtasks
+          Details
         </button>
         <button
           onClick={handleDelete}
@@ -69,11 +72,20 @@ function TaskItem({ task, onChange }) {
       </div>
 
       {expanded && (
-        <div className="pl-8">
-          {loadingSubtasks ? (
+        <div className="pl-8 flex flex-col gap-4">
+          {loadingDetail ? (
             <p className="text-xs text-gray-500">Loading...</p>
           ) : (
-            <SubtaskChecklist taskId={task.id} subtasks={subtasks} onChange={loadSubtasks} />
+            <>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-gray-400">Tags</span>
+                <TagPicker taskId={task.id} assignedTags={tags} onChange={loadDetail} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-gray-400">Subtasks</span>
+                <SubtaskChecklist taskId={task.id} subtasks={subtasks} onChange={loadDetail} />
+              </div>
+            </>
           )}
         </div>
       )}
