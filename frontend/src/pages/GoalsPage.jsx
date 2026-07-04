@@ -6,6 +6,7 @@ import Input from '../ui/Input';
 import DatePicker from '../ui/DatePicker';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import ScrollArea from '../components/ScrollArea';
 
 function GoalsPage() {
   const [goals, setGoals] = useState([]);
@@ -36,8 +37,9 @@ function GoalsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-2xl mx-auto w-full flex flex-col h-full gap-4">
+      {/* Fixed header — always visible, never scrolls */}
+      <div className="flex items-center justify-between shrink-0 pt-2">
         <h1 className="text-2xl font-bold text-gray-100">Goals</h1>
         <Button onClick={() => setModalOpen(true)}>
           <span className="flex items-center gap-2">
@@ -47,16 +49,19 @@ function GoalsPage() {
         </Button>
       </div>
 
+      {/* Scrollable list with fade — takes remaining height */}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading goals...</p>
       ) : goals.length === 0 ? (
         <p className="text-gray-500 text-sm">No goals yet — create your first one.</p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
-          ))}
-        </div>
+        <ScrollArea>
+          <div className="flex flex-col gap-3">
+            {goals.map((goal) => (
+              <GoalCard key={goal.id} goal={goal} />
+            ))}
+          </div>
+        </ScrollArea>
       )}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Create a goal">

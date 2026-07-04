@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import useClickOutside from './useClickOutside';
 
 function Dropdown({ label, options, value, onChange, placeholder = 'Select...' }) {
   const [open, setOpen] = useState(false);
+  const containerRef = useClickOutside(() => setOpen(false));
 
   const selected = options.find((o) => o.value === value);
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div ref={containerRef} className="flex flex-col gap-1.5">
       {label && <label className="text-sm font-medium text-gray-300">{label}</label>}
 
       <button

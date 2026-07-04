@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import useClickOutside from './useClickOutside';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const MONTHS = [
@@ -16,6 +17,7 @@ function toDateString(date) {
 
 function DatePicker({ label, value, onChange, placeholder = 'Select date' }) {
   const [open, setOpen] = useState(false);
+  const containerRef = useClickOutside(() => setOpen(false));
 
   const selectedDate = value ? new Date(value + 'T00:00:00') : null;
   const [viewDate, setViewDate] = useState(selectedDate || new Date());
@@ -46,7 +48,7 @@ function DatePicker({ label, value, onChange, placeholder = 'Select date' }) {
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div ref={containerRef} className="flex flex-col gap-1.5">
       {label && <label className="text-sm font-medium text-gray-300">{label}</label>}
 
       <button
