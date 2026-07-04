@@ -32,7 +32,7 @@ function Modal({ open, onClose, title, children }) {
         className="relative w-full max-w-md max-h-[85vh] overflow-y-auto scrollbar-hide bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/50 animate-in zoom-in-95 fade-in duration-150"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 sticky top-0 bg-gray-900 rounded-t-2xl">
-          <h2 className="text-lg font-semibold text-gray-100">{title}</h2>
+          <h2 className="text-lg font-display font-semibold text-gray-100">{title}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-gray-800"

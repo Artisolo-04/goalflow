@@ -43,3 +43,11 @@ export function optionalBoolean(value, fieldName) {
   }
   return null;
 }
+
+export function optionalEnum(value, fieldName, allowedValues) {
+  if (value === undefined || value === null) return null;
+  if (!allowedValues.includes(value)) {
+    return `${fieldName} must be one of: ${allowedValues.join(', ')}`;
+  }
+  return null;
+}

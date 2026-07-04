@@ -16,6 +16,7 @@ CREATE TABLE tasks (
     due_date DATE NOT NULL,
     goal_id INTEGER REFERENCES goals(id) ON DELETE SET NULL,
     completed BOOLEAN DEFAULT false,
+    priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
     created_at TIMESTAMP DEFAULT NOW()
 );
 

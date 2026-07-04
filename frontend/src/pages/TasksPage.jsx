@@ -47,7 +47,14 @@ function TasksPage() {
   return (
     <div className="max-w-2xl mx-auto w-full flex flex-col h-full gap-4">
       <div className="flex items-center justify-between shrink-0 pt-2">
-        <h1 className="text-2xl font-bold text-gray-100">Tasks</h1>
+        <div>
+          <h1 className="text-2xl font-display font-semibold tracking-tight text-gray-100">Tasks</h1>
+          {!loading && tasks.length > 0 && (
+            <p className="text-xs font-mono text-gray-500 mt-1">
+              {tasks.filter((t) => !t.completed).length} open · {tasks.filter((t) => t.completed).length} done
+            </p>
+          )}
+        </div>
         <Button onClick={() => setModalOpen(true)}>
           <span className="flex items-center gap-2">
             <Plus size={16} />
@@ -56,9 +63,16 @@ function TasksPage() {
         </Button>
       </div>
       {loading ? (
-        <p className="text-gray-500 text-sm">Loading tasks...</p>
+        <div className="flex flex-col gap-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-[92px] rounded-2xl bg-gray-900/60 border border-gray-800 animate-pulse" />
+          ))}
+        </div>
       ) : tasks.length === 0 ? (
-        <p className="text-gray-500 text-sm">No tasks yet — create your first one.</p>
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 py-12">
+          <p className="text-gray-300 font-medium">No tasks yet</p>
+          <p className="text-gray-500 text-sm max-w-xs">Create your first task to start tracking what's due and when.</p>
+        </div>
       ) : (
         <ScrollArea>
           <div className="flex flex-col gap-3">

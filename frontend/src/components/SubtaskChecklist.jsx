@@ -42,11 +42,12 @@ function SubtaskChecklist({ taskId, subtasks, onChange }) {
         </div>
       ))}
 
-      <div className="flex gap-2 mt-1">
+      <div className="flex gap-2 mt-1 items-center">
         <Input
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           placeholder="Add subtask..."
+          className="flex-1 min-w-0"
         />
         <Button variant="secondary" onClick={handleAdd}>Add</Button>
       </div>
