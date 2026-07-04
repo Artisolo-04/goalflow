@@ -39,3 +39,13 @@ export async function removeTagFromTask(taskId, tagId) {
   if (!res.ok) throw new Error('Failed to remove tag');
   return res.json();
 }
+
+export async function updateTag(id, updates) {
+  const res = await fetch(`${BASE_URL}/api/tags/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) throw new Error('Failed to update tag');
+  return res.json();
+}

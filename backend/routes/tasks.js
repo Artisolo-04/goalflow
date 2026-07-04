@@ -5,6 +5,16 @@ import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
+const VALID_PRIORITIES = ['low', 'medium', 'high', 'urgent'];
+
+function validatePriority(priority) {
+  if (priority === undefined || priority === null) return null;
+  if (!VALID_PRIORITIES.includes(priority)) {
+    return `priority must be one of: ${VALID_PRIORITIES.join(', ')}`;
+  }
+  return null;
+}
+
 // --- Tags (many-to-many with tasks) ---
 
 // POST assign a tag to a task
@@ -73,7 +83,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 // POST new task
 router.post('/', asyncHandler(async (req, res) => {
-  const { title, due_date, goal_id, completed } = req.body;
+  const { title, due_date, goal_id, completed, priority } = req.body;
 
   const titleError = requireString(title, 'title');
   if (titleError) return res.status(400).json({ error: titleError });
@@ -87,9 +97,12 @@ router.post('/', asyncHandler(async (req, res) => {
   const completedError = optionalBoolean(completed, 'completed');
   if (completedError) return res.status(400).json({ error: completedError });
 
+  const priorityError = validatePriority(priority);
+  if (priorityError) return res.status(400).json({ error: priorityError });
+
   const result = await pool.query(
-    `INSERT INTO tasks (title, due_date, goal_id, completed) VALUES ($1, $2, $3, $4) RETURNING *`,
-    [title, due_date, goal_id || null, completed || false]
+    `INSERT INTO tasks (title, due_date, goal_id, completed, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [title, due_date, goal_id || null, completed || false, priority || 'medium']
   );
   res.status(201).json(result.rows[0]);
 }));
@@ -97,7 +110,7 @@ router.post('/', asyncHandler(async (req, res) => {
 // PATCH task (toggle completed, edit title/due_date/goal_id)
 router.patch('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { title, due_date, goal_id, completed } = req.body;
+  const { title, due_date, goal_id, completed, priority } = req.body;
 
   const titleError = optionalString(title, 'title');
   if (titleError) return res.status(400).json({ error: titleError });
@@ -111,14 +124,18 @@ router.patch('/:id', asyncHandler(async (req, res) => {
   const completedError = optionalBoolean(completed, 'completed');
   if (completedError) return res.status(400).json({ error: completedError });
 
+  const priorityError = validatePriority(priority);
+  if (priorityError) return res.status(400).json({ error: priorityError });
+
   const result = await pool.query(
     `UPDATE tasks SET
       title = COALESCE($1, title),
       due_date = COALESCE($2, due_date),
       goal_id = COALESCE($3, goal_id),
-      completed = COALESCE($4, completed)
-     WHERE id = $5 RETURNING *`,
-    [title, due_date, goal_id, completed, id]
+      completed = COALESCE($4, completed),
+      priority = COALESCE($5, priority)
+    WHERE id = $6 RETURNING *`,
+    [title, due_date, goal_id, completed, priority, id]
   );
   if (result.rows.length === 0) return res.status(404).json({ error: 'Task not found' });
   res.json(result.rows[0]);
