@@ -38,7 +38,7 @@ function GoalsPage() {
 
   return (
     <div className="max-w-2xl mx-auto w-full flex flex-col h-full gap-4">
-      {/* Fixed header — always visible, never scrolls */}
+      {}
       <div className="flex items-center justify-between shrink-0 pt-2">
         <h1 className="text-2xl font-bold text-gray-100">Goals</h1>
         <Button onClick={() => setModalOpen(true)}>
@@ -49,7 +49,7 @@ function GoalsPage() {
         </Button>
       </div>
 
-      {/* Scrollable list with fade — takes remaining height */}
+      {}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading goals...</p>
       ) : goals.length === 0 ? (

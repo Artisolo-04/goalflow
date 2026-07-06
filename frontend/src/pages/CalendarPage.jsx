@@ -27,10 +27,10 @@ function CalendarPage() {
 
   return (
     <div className="max-w-3xl mx-auto w-full flex flex-col h-full gap-4">
-      {/* Fixed header — always visible, never scrolls */}
+      {}
       <h1 className="text-2xl font-bold text-gray-100 shrink-0 pt-2">Calendar</h1>
 
-      {/* Scrollable content — takes remaining height, matches Goals/Tasks pattern */}
+      {}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading calendar...</p>
       ) : (

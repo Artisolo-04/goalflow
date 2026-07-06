@@ -5,20 +5,18 @@ import useClickOutside from './useClickOutside';
 function Dropdown({ label, options, value, onChange, placeholder = 'Select...' }) {
   const [open, setOpen] = useState(false);
   const containerRef = useClickOutside(() => setOpen(false));
-
   const selected = options.find((o) => o.value === value);
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-1.5">
+    <div ref={containerRef} className="relative flex flex-col gap-1.5">
       {label && <label className="text-sm font-medium text-gray-300">{label}</label>}
-
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={`
           w-full bg-gray-800 text-gray-100 border-2 rounded-lg px-3 py-2 text-sm text-left
           flex items-center justify-between outline-none transition-colors duration-150
-          ${open ? 'border-indigo-500 rounded-b-none' : 'border-gray-700'}
+          ${open ? 'border-indigo-500' : 'border-gray-700'}
         `}
       >
         <span className={selected ? '' : 'text-gray-500'}>
@@ -30,14 +28,8 @@ function Dropdown({ label, options, value, onChange, placeholder = 'Select...' }
         />
       </button>
 
-      {/* Inline expanding panel, same pattern as DatePicker — pushes content below it down */}
-      <div
-        className={`
-          overflow-hidden transition-all duration-200 ease-out
-          ${open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}
-        `}
-      >
-        <div className="bg-gray-800 border-2 border-t-0 border-indigo-500 rounded-b-lg max-h-60 overflow-y-auto scrollbar-hide">
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1.5 z-30 bg-gray-800 border-2 border-indigo-500 rounded-lg max-h-60 overflow-y-auto scrollbar-hide shadow-xl shadow-black/40 animate-in fade-in zoom-in-95 duration-150 origin-top">
           {options.length === 0 ? (
             <p className="text-xs text-gray-500 px-3 py-2">No options available</p>
           ) : (
@@ -61,7 +53,7 @@ function Dropdown({ label, options, value, onChange, placeholder = 'Select...' }
             ))
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

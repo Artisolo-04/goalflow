@@ -22,6 +22,19 @@ export async function deleteTag(id) {
   return res.json();
 }
 
+export async function updateTag(id, updates) {
+  const res = await fetch(`${BASE_URL}/api/tags/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || 'Failed to update tag');
+  }
+  return res.json();
+}
+
 export async function assignTagToTask(taskId, tagId) {
   const res = await fetch(`${BASE_URL}/api/tasks/${taskId}/tags`, {
     method: 'POST',
@@ -33,19 +46,7 @@ export async function assignTagToTask(taskId, tagId) {
 }
 
 export async function removeTagFromTask(taskId, tagId) {
-  const res = await fetch(`${BASE_URL}/api/tasks/${taskId}/tags/${tagId}`, {
-    method: 'DELETE',
-  });
+  const res = await fetch(`${BASE_URL}/api/tasks/${taskId}/tags/${tagId}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to remove tag');
-  return res.json();
-}
-
-export async function updateTag(id, updates) {
-  const res = await fetch(`${BASE_URL}/api/tags/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updates),
-  });
-  if (!res.ok) throw new Error('Failed to update tag');
   return res.json();
 }

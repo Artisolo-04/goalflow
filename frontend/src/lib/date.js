@@ -1,6 +1,3 @@
-// Turns a raw YYYY-MM-DD due date into a short, human label plus a
-// semantic "tone" (done / overdue / today / soon / neutral) that the
-// UI uses to color the task's status rail and date chip consistently.
 export function dueDateInfo(dateStr, completed) {
   if (!dateStr) return { label: 'No date', tone: 'neutral' };
 
