@@ -22,9 +22,10 @@ function TasksPage() {
   const [tasks, setTasks] = useState([]);
   const [goals, setGoals] = useState([]);
   const [allTags, setAllTags] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [pickingDate, setPickingDate] = useState(false);
 
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState(null);
@@ -157,7 +158,20 @@ function TasksPage() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Create a task">
         <div className="flex flex-col gap-4">
           <Input label="Task title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Build workout routine" />
-          <DatePicker label="Due date" value={dueDate} onChange={setDueDate} />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-300">Due date</label>
+            <button
+              type="button"
+              onClick={() => setPickingDate(true)}
+              className="w-full bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg px-3 py-2 text-sm text-left outline-none hover:border-gray-600 transition-colors flex items-center justify-between"
+            >
+              <span className={dueDate ? '' : 'text-gray-500'}>{dueDate || 'Select date'}</span>
+            </button>
+          </div>
+
+          <Modal open={pickingDate} onClose={() => setPickingDate(false)} title="Choose due date">
+            <DatePicker value={dueDate} onChange={(d) => { setDueDate(d); setPickingDate(false); }} startOpen />
+          </Modal>
           <PriorityPicker value={priority} onChange={setPriority} />
           <Dropdown label="Linked goal (optional)" placeholder="No goal" value={goalId} onChange={setGoalId} options={goalOptions} />
           <Button onClick={handleCreate}>Create task</Button>
