@@ -58,7 +58,7 @@ function GoalsPage() {
         <ScrollArea>
           <div className="flex flex-col gap-3">
             {goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} />
+              <GoalCard key={goal.id} goal={goal} onChange={loadGoals} />
             ))}
           </div>
         </ScrollArea>
