@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchTasks } from '../api/tasks';
 import CalendarGrid from '../components/CalendarGrid';
 import DayDetailPanel from '../components/DayDetailPanel';
+import Modal from '../ui/Modal';
 
 function CalendarPage() {
   const [tasks, setTasks] = useState([]);
@@ -26,29 +27,22 @@ function CalendarPage() {
   }, {});
 
   return (
-    <div className="max-w-3xl mx-auto w-full flex flex-col h-full gap-4">
-      {}
+    <div className="max-w-2xl mx-auto w-full flex flex-col h-full gap-4">
       <h1 className="text-2xl font-bold text-gray-100 shrink-0 pt-2">Calendar</h1>
 
-      {}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading calendar...</p>
       ) : (
-        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-          <div className="grid grid-cols-2 gap-4 items-start">
-            <CalendarGrid
-              tasksByDate={tasksByDate}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-            <DayDetailPanel
-              date={selectedDate}
-              tasks={tasksByDate[selectedDate] || []}
-              onChange={loadTasks}
-            />
-          </div>
-        </div>
+        <CalendarGrid tasksByDate={tasksByDate} onSelectDate={setSelectedDate} />
       )}
+
+      <Modal open={!!selectedDate} onClose={() => setSelectedDate(null)} title={selectedDate}>
+        <DayDetailPanel
+          date={selectedDate}
+          tasks={tasksByDate[selectedDate] || []}
+          onChange={loadTasks}
+        />
+      </Modal>
     </div>
   );
 }
