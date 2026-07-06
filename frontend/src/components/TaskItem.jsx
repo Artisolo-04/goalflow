@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { ChevronDown, Trash2, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import Checkbox from '../ui/Checkbox';
 import Dropdown from '../ui/Dropdown';
+import DatePicker from '../ui/DatePicker';
 import SubtaskChecklist from './SubtaskChecklist';
 import TagPicker from './TagPicker';
 import PriorityBadge from './PriorityBadge';
 import { updateTask, deleteTask, fetchTaskById } from '../api/tasks';
 import { dueDateInfo } from '../lib/date';
+import Modal from '../ui/Modal';
 
 const TONE = {
   done: { edge: 'bg-emerald-500', badge: 'bg-emerald-500/12 text-emerald-400 border-emerald-500/25', icon: CheckCircle2 },
@@ -21,6 +23,12 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
   const [subtasks, setSubtasks] = useState([]);
   const [tags, setTags] = useState([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(task.title);
+  const [editingDate, setEditingDate] = useState(false);
+
 
   const { label: dateLabel, tone } = dueDateInfo(task.due_date, task.completed);
   const { edge, badge, icon: ToneIcon } = TONE[tone];
@@ -59,6 +67,35 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
     onChange();
   }
 
+  async function handleTitleSave() {
+    const trimmed = titleDraft.trim();
+    if (!trimmed || trimmed === task.title) {
+      setTitleDraft(task.title);
+      setEditingTitle(false);
+      return;
+    }
+    await updateTask(task.id, { title: trimmed });
+    setEditingTitle(false);
+    onChange();
+  }
+
+  function handleTitleKeyDown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleTitleSave();
+    }
+    if (e.key === 'Escape') {
+      setTitleDraft(task.title);
+      setEditingTitle(false);
+    }
+  }
+
+  async function handleDueDateChange(newDate) {
+    await updateTask(task.id, { due_date: newDate });
+    setEditingDate(false);
+    onChange();
+  }
+
   const goalOptions = [{ label: 'No goal', value: null }, ...goals.map((g) => ({ label: g.title, value: g.id }))];
 
   return (
@@ -72,19 +109,49 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
       `}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 pt-0.5">
-          <Checkbox
-            checked={task.completed}
-            onChange={(e) => handleToggleCompleted(e.target.checked)}
-            label={<span className="font-display text-[15px] font-medium">{task.title}</span>}
-          />
+        <div className="min-w-0 flex-1 pt-0.5 flex items-start gap-2.5">
+          <div className="pt-0.5">
+            <Checkbox checked={task.completed} onChange={(e) => handleToggleCompleted(e.target.checked)} />
+          </div>
+
+          {editingTitle ? (
+            <input
+              autoFocus
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+              className="flex-1 min-w-0 bg-gray-800 border-2 border-indigo-500 rounded-lg px-2 py-1 text-[15px] font-display font-medium text-gray-100 outline-none"
+            />
+          ) : (
+            <span
+              onClick={() => setEditingTitle(true)}
+              className={`font-display text-[15px] font-medium cursor-text hover:text-indigo-300 transition-colors ${
+                task.completed ? 'line-through text-gray-500' : 'text-gray-100'
+              }`}
+            >
+              {task.title}
+            </span>
+          )}
         </div>
+
         <div className="shrink-0 flex items-center gap-1.5">
           <PriorityBadge value={task.priority || 'medium'} onChange={handlePriorityChange} />
-          <span className={`inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full text-[11px] font-mono font-medium border ${badge}`}>
-            <ToneIcon size={12} strokeWidth={2.5} />
-            {dateLabel}
-          </span>
+
+          <>
+            <button
+              type="button"
+              onClick={() => setEditingDate(true)}
+              className={`inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full text-[11px] font-mono font-medium border ${badge} hover:brightness-110 transition`}
+            >
+              <ToneIcon size={12} strokeWidth={2.5} />
+              {dateLabel}
+            </button>
+
+            <Modal open={editingDate} onClose={() => setEditingDate(false)} title="Change due date">
+              <DatePicker value={task.due_date} onChange={handleDueDateChange} startOpen />
+            </Modal>
+          </>
         </div>
       </div>
 
