@@ -1,7 +1,14 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-function Modal({ open, onClose, title, children }) {
+const SIZES = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-2xl',
+};
+
+function Modal({ open, onClose, title, children, size = 'md' }) {
   useEffect(() => {
     if (!open) return;
     function handleKey(e) {
@@ -18,9 +25,7 @@ function Modal({ open, onClose, title, children }) {
     }
     return () => { document.body.style.overflow = ''; };
   }, [open]);
-
   if (!open) return null;
-
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -29,7 +34,7 @@ function Modal({ open, onClose, title, children }) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150" />
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md max-h-[85vh] scrollbar-hide bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/50 animate-in zoom-in-95 fade-in duration-150"
+        className={`relative w-full ${SIZES[size]} max-h-[85vh] overflow-y-auto scrollbar-hide bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/50 animate-in zoom-in-95 fade-in duration-150`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 sticky top-0 bg-gray-900 rounded-t-2xl">
           <h2 className="text-lg font-display font-semibold text-gray-100">{title}</h2>
@@ -45,5 +50,4 @@ function Modal({ open, onClose, title, children }) {
     </div>
   );
 }
-
 export default Modal;

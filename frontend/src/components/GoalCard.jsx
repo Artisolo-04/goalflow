@@ -3,6 +3,7 @@ import { Circle, CircleDot, CircleCheck, Trash2 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import DatePicker from '../ui/DatePicker';
 import { updateGoal, deleteGoal } from '../api/goals';
+import GoalTasksPanel from './GoalTasksPanel';
 
 const STATUS_TONE = {
   gray: { badge: 'bg-gray-500/10 text-gray-400 border-gray-500/20', icon: Circle, label: 'Not started' },
@@ -16,10 +17,11 @@ function getGoalStatus(progress) {
   return STATUS_TONE.amber;
 }
 
-function GoalCard({ goal, onChange }) {
+function GoalCard({ goal, tasks, allTasks, onChange }) {
   const status = getGoalStatus(goal.progress);
   const StatusIcon = status.icon;
 
+  const [showTasks, setShowTasks] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(goal.title);
   const [editingDate, setEditingDate] = useState(false);
@@ -113,6 +115,19 @@ function GoalCard({ goal, onChange }) {
         </div>
         <span className="text-xs text-gray-400 w-10 text-right font-medium">{goal.progress}%</span>
       </div>
+
+      <button
+        onClick={() => setShowTasks(true)}
+        className="text-xs text-gray-500 hover:text-indigo-300 transition-colors text-left w-fit"
+      >
+        {tasks.length === 0
+          ? 'No tasks linked'
+          : `${tasks.filter((t) => t.completed).length}/${tasks.length} tasks done — view tasks`}
+      </button>
+
+      <Modal open={showTasks} onClose={() => setShowTasks(false)} title={goal.title} size="xl">
+        <GoalTasksPanel goalId={goal.id} tasks={tasks} allTasks={allTasks} onChange={onChange} />
+      </Modal>
 
       <Modal open={editingDate} onClose={() => setEditingDate(false)} title="Change target date">
         <DatePicker value={goal.target_date} onChange={handleTargetDateChange} startOpen />
