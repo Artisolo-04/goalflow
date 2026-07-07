@@ -4,6 +4,7 @@ import Modal from '../ui/Modal';
 import DatePicker from '../ui/DatePicker';
 import { updateGoal, deleteGoal } from '../api/goals';
 import GoalTasksPanel from './GoalTasksPanel';
+import { useToast } from '../context/ToastContext';
 
 const STATUS_TONE = {
   gray: { badge: 'bg-gray-500/10 text-gray-400 border-gray-500/20', icon: Circle, label: 'Not started' },
@@ -18,6 +19,8 @@ function getGoalStatus(progress) {
 }
 
 function GoalCard({ goal, tasks, allTasks, onChange }) {
+
+  const toast = useToast();
   const status = getGoalStatus(goal.progress);
   const StatusIcon = status.icon;
 
@@ -33,9 +36,15 @@ function GoalCard({ goal, tasks, allTasks, onChange }) {
       setEditingTitle(false);
       return;
     }
-    await updateGoal(goal.id, { title: trimmed });
-    setEditingTitle(false);
-    onChange();
+    try {
+      await updateGoal(goal.id, { title: trimmed });
+      toast.success('Title updated');
+      setEditingTitle(false);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+      setEditingTitle(false);
+    }
   }
 
   function handleTitleKeyDown(e) {
@@ -50,14 +59,25 @@ function GoalCard({ goal, tasks, allTasks, onChange }) {
   }
 
   async function handleTargetDateChange(newDate) {
-    await updateGoal(goal.id, { target_date: newDate });
-    setEditingDate(false);
-    onChange();
+    try {
+      await updateGoal(goal.id, { target_date: newDate });
+      toast.success('Target date updated');
+      setEditingDate(false);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+      setEditingDate(false);
+    }
   }
 
   async function handleDelete() {
-    await deleteGoal(goal.id);
-    onChange();
+    try {
+      await deleteGoal(goal.id);
+      toast.success('Goal deleted');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   return (

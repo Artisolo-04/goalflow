@@ -8,8 +8,11 @@ import DatePicker from '../ui/DatePicker';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ScrollArea from '../components/ScrollArea';
+import { useToast } from '../context/ToastContext';
 
 function GoalsPage() {
+
+  const toast = useToast();
   const [goals, setGoals] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,10 +23,15 @@ function GoalsPage() {
 
   async function loadAll({ silent = false } = {}) {
     if (!silent) setLoading(true);
-    const [goalData, taskData] = await Promise.all([fetchGoals(), fetchTasks()]);
-    setGoals(goalData);
-    setTasks(taskData);
-    if (!silent) setLoading(false);
+    try {
+      const [goalData, taskData] = await Promise.all([fetchGoals(), fetchTasks()]);
+      setGoals(goalData);
+      setTasks(taskData);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      if (!silent) setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -32,11 +40,16 @@ function GoalsPage() {
 
   async function handleCreate() {
     if (!title.trim()) return;
-    await createGoal({ title, target_date: targetDate });
-    setTitle('');
-    setTargetDate(null);
-    setModalOpen(false);
-    loadAll();
+    try {
+      await createGoal({ title, target_date: targetDate });
+      toast.success('Goal created');
+      setTitle('');
+      setTargetDate(null);
+      setModalOpen(false);
+      loadAll();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   const tasksByGoal = tasks.reduce((acc, task) => {

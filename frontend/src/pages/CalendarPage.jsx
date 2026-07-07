@@ -3,17 +3,25 @@ import { fetchTasks } from '../api/tasks';
 import CalendarGrid from '../components/CalendarGrid';
 import DayDetailPanel from '../components/DayDetailPanel';
 import Modal from '../ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 function CalendarPage() {
+
+  const toast = useToast();
   const [tasks, setTasks] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
 
   async function loadTasks() {
     setLoading(true);
-    const data = await fetchTasks();
-    setTasks(data);
-    setLoading(false);
+    try {
+      const data = await fetchTasks();
+      setTasks(data);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {

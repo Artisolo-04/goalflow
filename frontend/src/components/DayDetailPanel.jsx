@@ -3,34 +3,56 @@ import { Trash2, Plus } from 'lucide-react';
 import Checkbox from '../ui/Checkbox';
 import PriorityBadge from './PriorityBadge';
 import { updateTask, deleteTask, createTask } from '../api/tasks';
+import { useToast } from '../context/ToastContext';
 
 function DayDetailPanel({ date, tasks, onChange }) {
+
+  const toast = useToast();
   const [newTitle, setNewTitle] = useState('');
   const [adding, setAdding] = useState(false);
 
   async function handleToggle(taskId, checked) {
-    await updateTask(taskId, { completed: checked });
-    onChange();
+    try {
+      await updateTask(taskId, { completed: checked });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleDelete(taskId) {
-    await deleteTask(taskId);
-    onChange();
+    try {
+      await deleteTask(taskId);
+      toast.success('Task deleted');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handlePriorityChange(taskId, priority) {
-    await updateTask(taskId, { priority });
-    onChange();
+    try {
+      await updateTask(taskId, { priority });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleAddTask() {
     const trimmed = newTitle.trim();
     if (!trimmed || !date) return;
     setAdding(true);
-    await createTask({ title: trimmed, due_date: date, priority: 'medium' });
-    setNewTitle('');
-    setAdding(false);
-    onChange();
+    try {
+      await createTask({ title: trimmed, due_date: date, priority: 'medium' });
+      toast.success('Task added');
+      setNewTitle('');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setAdding(false);
+    }
   }
 
   function handleKeyDown(e) {

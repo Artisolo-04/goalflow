@@ -6,8 +6,10 @@ import Dropdown from '../ui/Dropdown';
 import Modal from '../ui/Modal';
 import PriorityBadge from './PriorityBadge';
 import { updateTask, deleteTask, createTask } from '../api/tasks';
+import { useToast } from '../context/ToastContext';
 
 function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onTitleSave, onDueDateSave }) {
+
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(task.title);
   const [editingDate, setEditingDate] = useState(false);
@@ -98,6 +100,8 @@ function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onT
 }
 
 function GoalTasksPanel({ goalId, tasks, allTasks, onChange }) {
+
+  const toast = useToast();
   const [newTitle, setNewTitle] = useState('');
   const [newDueDate, setNewDueDate] = useState(null);
   const [pickingDate, setPickingDate] = useState(false);
@@ -109,53 +113,91 @@ function GoalTasksPanel({ goalId, tasks, allTasks, onChange }) {
   const linkOptions = unassignedTasks.map((t) => ({ label: t.title, value: t.id }));
 
   async function handleToggle(taskId, checked) {
-    await updateTask(taskId, { completed: checked });
-    onChange();
+    try {
+      await updateTask(taskId, { completed: checked });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleDelete(taskId) {
-    await deleteTask(taskId);
-    onChange();
+    try {
+      await deleteTask(taskId);
+      toast.success('Task deleted');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handlePriorityChange(taskId, priority) {
-    await updateTask(taskId, { priority });
-    onChange();
+    try {
+      await updateTask(taskId, { priority });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleUnlink(taskId) {
-    await updateTask(taskId, { goal_id: null });
-    onChange();
+    try {
+      await updateTask(taskId, { goal_id: null });
+      toast.success('Task unlinked from goal');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleTitleSave(taskId, title) {
-    await updateTask(taskId, { title });
-    onChange();
+    try {
+      await updateTask(taskId, { title });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleDueDateSave(taskId, due_date) {
-    await updateTask(taskId, { due_date });
-    onChange();
+    try {
+      await updateTask(taskId, { due_date });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleAddTask() {
     const trimmed = newTitle.trim();
     if (!trimmed || !newDueDate) return;
     setAdding(true);
-    await createTask({ title: trimmed, due_date: newDueDate, goal_id: goalId, priority: 'medium' });
-    setNewTitle('');
-    setNewDueDate(null);
-    setAdding(false);
-    onChange();
+    try {
+      await createTask({ title: trimmed, due_date: newDueDate, goal_id: goalId, priority: 'medium' });
+      toast.success('Task added to goal');
+      setNewTitle('');
+      setNewDueDate(null);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setAdding(false);
+    }
   }
 
   async function handleLinkExisting() {
     if (!linkTaskId) return;
     setLinking(true);
-    await updateTask(linkTaskId, { goal_id: goalId });
-    setLinkTaskId(null);
-    setLinking(false);
-    onChange();
+    try {
+      await updateTask(linkTaskId, { goal_id: goalId });
+      toast.success('Task linked to goal');
+      setLinkTaskId(null);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLinking(false);
+    }
   }
 
   return (

@@ -9,6 +9,7 @@ import PriorityBadge from './PriorityBadge';
 import { updateTask, deleteTask, fetchTaskById } from '../api/tasks';
 import { dueDateInfo } from '../lib/date';
 import Modal from '../ui/Modal';
+import { useToast } from '../context/ToastContext';
 
 const TONE = {
   done: { edge: 'bg-emerald-500', badge: 'bg-emerald-500/12 text-emerald-400 border-emerald-500/25', icon: CheckCircle2 },
@@ -19,6 +20,8 @@ const TONE = {
 };
 
 function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
+
+  const toast = useToast();
   const [expanded, setExpanded] = useState(false);
   const [subtasks, setSubtasks] = useState([]);
   const [tags, setTags] = useState([]);
@@ -35,10 +38,15 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
 
   async function loadDetail() {
     setLoadingDetail(true);
-    const full = await fetchTaskById(task.id);
-    setSubtasks(full.subtasks);
-    setTags(full.tags);
-    setLoadingDetail(false);
+    try {
+      const full = await fetchTaskById(task.id);
+      setSubtasks(full.subtasks);
+      setTags(full.tags);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoadingDetail(false);
+    }
   }
 
   async function toggleExpand() {
@@ -48,23 +56,54 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
   }
 
   async function handleToggleCompleted(checked) {
-    await updateTask(task.id, { completed: checked });
-    onChange();
+    try {
+      await updateTask(task.id, { completed: checked });
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleDelete() {
-    await deleteTask(task.id);
-    onChange();
+    try {
+      await deleteTask(task.id);
+      toast.success('Task deleted');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handlePriorityChange(priority) {
-    await updateTask(task.id, { priority });
-    onChange();
+    try {
+      await updateTask(task.id, { priority });
+      toast.success('Priority updated');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   async function handleGoalChange(goalId) {
-    await updateTask(task.id, { goal_id: goalId });
-    onChange();
+    try {
+      await updateTask(task.id, { goal_id: goalId });
+      toast.success('Goal updated');
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
+  async function handleDueDateChange(newDate) {
+    try {
+      await updateTask(task.id, { due_date: newDate });
+      toast.success('Due date updated');
+      setEditingDate(false);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+      setEditingDate(false);
+    }
   }
 
   async function handleTitleSave() {
@@ -74,9 +113,15 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
       setEditingTitle(false);
       return;
     }
-    await updateTask(task.id, { title: trimmed });
-    setEditingTitle(false);
-    onChange();
+    try {
+      await updateTask(task.id, { title: trimmed });
+      toast.success('Title updated');
+      setEditingTitle(false);
+      onChange();
+    } catch (err) {
+      toast.error(err.message);
+      setEditingTitle(false);
+    }
   }
 
   function handleTitleKeyDown(e) {
@@ -88,12 +133,6 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
       setTitleDraft(task.title);
       setEditingTitle(false);
     }
-  }
-
-  async function handleDueDateChange(newDate) {
-    await updateTask(task.id, { due_date: newDate });
-    setEditingDate(false);
-    onChange();
   }
 
   const goalOptions = [{ label: 'No goal', value: null }, ...goals.map((g) => ({ label: g.title, value: g.id }))];

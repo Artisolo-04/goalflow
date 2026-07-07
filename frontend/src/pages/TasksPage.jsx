@@ -11,6 +11,7 @@ import Dropdown from '../ui/Dropdown';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ScrollArea from '../components/ScrollArea';
+import { useToast } from '../context/ToastContext';
 
 const STATUS_OPTIONS = [
   { label: 'All statuses', value: 'all' },
@@ -19,6 +20,8 @@ const STATUS_OPTIONS = [
 ];
 
 function TasksPage() {
+
+  const toast = useToast();
   const [tasks, setTasks] = useState([]);
   const [goals, setGoals] = useState([]);
   const [allTags, setAllTags] = useState([]);
@@ -43,8 +46,8 @@ function TasksPage() {
         setGoals(goalData);
         setAllTags(tagData);
       } catch (err) {
-        console.error('Failed to load tasks page data:', err);
         setLoadError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -64,13 +67,18 @@ function TasksPage() {
 
   async function handleCreate() {
     if (!title.trim() || !dueDate) return;
-    await createTask({ title, due_date: dueDate, goal_id: goalId, priority });
-    setTitle('');
-    setDueDate(null);
-    setGoalId(null);
-    setPriority('medium');
-    setModalOpen(false);
-    refreshTasks();
+    try {
+      await createTask({ title, due_date: dueDate, goal_id: goalId, priority });
+      toast.success('Task created');
+      setTitle('');
+      setDueDate(null);
+      setGoalId(null);
+      setPriority('medium');
+      setModalOpen(false);
+      refreshTasks();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   const goalOptions = [{ label: 'No goal', value: null }, ...goals.map((g) => ({ label: g.title, value: g.id }))];
