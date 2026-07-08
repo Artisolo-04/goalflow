@@ -6,6 +6,7 @@ import { createTag, updateTag, assignTagToTask, removeTagFromTask } from '../api
 const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
 const COLOR_HEX = { gray: '#6b7280', blue: '#3b82f6', amber: '#f59e0b', green: '#10b981' };
 
+
 function TagPicker({ taskId, assignedTags, allTags, onTagsRefresh, onChange }) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);

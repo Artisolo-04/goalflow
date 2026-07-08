@@ -1,6 +1,5 @@
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
-
 function AppLayout({ activeTab, setActiveTab, children }) {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950">
@@ -12,5 +11,4 @@ function AppLayout({ activeTab, setActiveTab, children }) {
     </div>
   );
 }
-
 export default AppLayout;
