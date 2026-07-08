@@ -13,7 +13,13 @@ function validateColor(color) {
 }
 
 router.get('/', asyncHandler(async (req, res) => {
-  const result = await pool.query(`SELECT * FROM tags ORDER BY name ASC`);
+  const result = await pool.query(`
+    SELECT t.*, COUNT(tt.task_id)::int AS task_count
+    FROM tags t
+    LEFT JOIN task_tags tt ON tt.tag_id = t.id
+    GROUP BY t.id
+    ORDER BY t.name ASC
+  `);
   res.json(result.rows);
 }));
 

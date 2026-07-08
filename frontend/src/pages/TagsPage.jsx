@@ -108,6 +108,30 @@ function TagsPage() {
     }
   }
 
+  function TagRow({ tag, onEdit, onDeleteRequest }) {
+    return (
+      <div className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 hover:border-gray-700 transition-colors">
+        <span className={`w-4 h-4 rounded-md shrink-0 ${COLOR_SWATCH[tag.color] || COLOR_SWATCH.gray}`} />
+        <span className="flex-1 min-w-0 truncate text-sm text-gray-100">{tag.name}</span>
+        <span className="text-xs text-gray-500 shrink-0">
+          {tag.task_count === 0 ? 'Unused' : `${tag.task_count} task${tag.task_count === 1 ? '' : 's'}`}
+        </span>
+        <button
+          onClick={() => onEdit(tag)}
+          className="text-gray-500 hover:text-indigo-300 p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0"
+        >
+          <Pencil size={14} />
+        </button>
+        <button
+          onClick={() => onDeleteRequest(tag)}
+          className="text-gray-500 hover:text-orange-400 p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+    );
+  }
+
   function openEdit(tag) {
     setEditTarget(tag);
     setEditName(tag.name);
@@ -243,7 +267,10 @@ function TagsPage() {
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete tag?">
         <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-300">
-            Delete <span className="font-semibold text-gray-100">{deleteTarget?.name}</span>? This will remove it from any tasks it's assigned to. This can't be undone.
+            Delete <span className="font-semibold text-gray-100">{deleteTarget?.name}</span> ?{' '}
+            {deleteTarget?.task_count > 0
+              ? `This will remove it from ${deleteTarget.task_count} task${deleteTarget.task_count === 1 ? '' : 's'}. This can't be undone.`
+              : "This tag isn't used on any tasks. This can't be undone."}
           </p>
           <div className="flex justify-end gap-2">
             <button

@@ -36,12 +36,25 @@ router.delete('/:taskId/tags/:tagId', asyncHandler(async (req, res) => {
 
 router.get('/', asyncHandler(async (req, res) => {
   const { due_date } = req.query;
-  let result;
-  if (due_date) {
-    result = await pool.query(`SELECT * FROM tasks WHERE due_date = $1 ORDER BY created_at DESC`, [due_date]);
-  } else {
-    result = await pool.query(`SELECT * FROM tasks ORDER BY due_date ASC`);
-  }
+  const whereClause = due_date ? 'WHERE t.due_date = $1' : '';
+  const params = due_date ? [due_date] : [];
+
+  const result = await pool.query(
+    `SELECT t.*,
+       COALESCE(
+         json_agg(
+           json_build_object('id', tg.id, 'name', tg.name, 'color', tg.color)
+         ) FILTER (WHERE tg.id IS NOT NULL),
+         '[]'
+       ) AS tags
+     FROM tasks t
+     LEFT JOIN task_tags tt ON tt.task_id = t.id
+     LEFT JOIN tags tg ON tg.id = tt.tag_id
+     ${whereClause}
+     GROUP BY t.id
+     ORDER BY ${due_date ? 't.created_at DESC' : 't.due_date ASC'}`,
+    params
+  );
   res.json(result.rows);
 }));
 

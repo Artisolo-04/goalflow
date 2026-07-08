@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Plus, Search, Tags, ChevronDown, Check } from 'lucide-react';
 import { fetchTasks, createTask } from '../api/tasks';
 import { fetchGoals } from '../api/goals';
 import { fetchTags } from '../api/tags';
@@ -11,6 +11,7 @@ import Dropdown from '../ui/Dropdown';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import ScrollArea from '../components/ScrollArea';
+import useClickOutside from '../ui/useClickOutside';
 import { useToast } from '../context/ToastContext';
 
 const STATUS_OPTIONS = [
@@ -38,6 +39,94 @@ const SORT_OPTIONS = [
 
 const PRIORITY_RANK = { low: 0, medium: 1, high: 2, urgent: 3 };
 
+function TagFilter({ allTags, selectedIds, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState(null);
+  const buttonRef = useRef(null);
+  const ref = useClickOutside(() => setOpen(false));
+
+  function handleToggle() {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    const rect = buttonRef.current.getBoundingClientRect();
+    setMenuStyle({ position: 'fixed', top: rect.bottom + 6, left: rect.left, width: rect.width });
+    setOpen(true);
+  }
+
+  function toggleTag(id) {
+    if (selectedIds.includes(id)) {
+      onChange(selectedIds.filter((i) => i !== id));
+    } else {
+      onChange([...selectedIds, id]);
+    }
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={handleToggle}
+        className={`w-full bg-gray-800 text-gray-100 border-2 rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between outline-none transition-colors duration-150 ${
+          open ? 'border-indigo-500' : 'border-gray-700'
+        }`}
+      >
+        <span className="flex items-center gap-1.5 min-w-0 truncate">
+          <Tags size={13} className="text-gray-500 shrink-0" />
+          <span className="truncate">
+            {selectedIds.length === 0 ? 'All tags' : `${selectedIds.length} tag${selectedIds.length === 1 ? '' : 's'}`}
+          </span>
+        </span>
+        <ChevronDown size={15} className={`text-gray-500 transition-transform duration-150 shrink-0 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && menuStyle && (
+        <div
+          style={menuStyle}
+          className="z-[200] bg-gray-800 border-2 border-indigo-500 rounded-lg max-h-[228px] overflow-y-auto scrollbar-hide shadow-xl shadow-black/40 animate-in fade-in zoom-in-95 duration-150"
+        >
+          {allTags.length === 0 ? (
+            <p className="text-xs text-gray-500 px-3 py-2">No tags available</p>
+          ) : (
+            <>
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange([])}
+                  className="w-full text-left px-3 py-2 text-xs text-indigo-300 hover:bg-gray-700 transition-colors border-b border-gray-700"
+                >
+                  Clear all
+                </button>
+              )}
+              {allTags.map((tag) => {
+                const checked = selectedIds.includes(tag.id);
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => toggleTag(tag.id)}
+                    className="w-full text-left px-3 py-2 text-sm flex items-center justify-between gap-2 hover:bg-gray-700 transition-colors"
+                  >
+                    <span className={`truncate min-w-0 ${checked ? 'text-indigo-300' : 'text-gray-200'}`}>
+                      {tag.name}
+                    </span>
+                    <span className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[11px] text-indigo-500 px-1.5 py-0.5 bg-indigo-900 rounded flex items-center justify-center">{tag.task_count ?? 0}</span>
+                      {checked && <Check size={14} className="text-indigo-300" />}
+                    </span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TasksPage() {
   const toast = useToast();
   const [tasks, setTasks] = useState([]);
@@ -56,6 +145,7 @@ function TasksPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [tagFilterIds, setTagFilterIds] = useState([]);
   const [sortBy, setSortBy] = useState('created_desc');
 
   useEffect(() => {
@@ -109,6 +199,11 @@ function TasksPage() {
       if (statusFilter === 'done' && !t.completed) return false;
       if (priorityFilter !== 'all' && (t.priority || 'medium') !== priorityFilter) return false;
       if (search.trim() && !t.title.toLowerCase().includes(search.trim().toLowerCase())) return false;
+      if (tagFilterIds.length > 0) {
+        const taskTagIds = (t.tags || []).map((tg) => tg.id);
+        const hasAnySelected = tagFilterIds.some((id) => taskTagIds.includes(id));
+        if (!hasAnySelected) return false;
+      }
       return true;
     });
 
@@ -132,7 +227,7 @@ function TasksPage() {
     });
 
     return result;
-  }, [tasks, search, statusFilter, priorityFilter, sortBy]);
+  }, [tasks, search, statusFilter, priorityFilter, tagFilterIds, sortBy]);
 
   return (
     <div className="max-w-2xl mx-auto w-full flex flex-col h-full gap-4">
@@ -164,16 +259,11 @@ function TasksPage() {
               className="w-full bg-gray-800 text-gray-100 placeholder-gray-500 border-2 border-gray-700 rounded-lg pl-8 pr-3 py-2 text-sm outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
-          <div className="flex gap-2">
-            <div className="flex-1 min-w-0">
-              <Dropdown options={STATUS_OPTIONS} value={statusFilter} onChange={setStatusFilter} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <Dropdown options={PRIORITY_FILTER_OPTIONS} value={priorityFilter} onChange={setPriorityFilter} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <Dropdown options={SORT_OPTIONS} value={sortBy} onChange={setSortBy} />
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Dropdown options={STATUS_OPTIONS} value={statusFilter} onChange={setStatusFilter} />
+            <Dropdown options={PRIORITY_FILTER_OPTIONS} value={priorityFilter} onChange={setPriorityFilter} />
+            <TagFilter allTags={allTags} selectedIds={tagFilterIds} onChange={setTagFilterIds} />
+            <Dropdown options={SORT_OPTIONS} value={sortBy} onChange={setSortBy} />
           </div>
         </div>
       )}
