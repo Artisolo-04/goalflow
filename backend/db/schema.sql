@@ -6,8 +6,10 @@
 CREATE TABLE goals (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
+    color TEXT NOT NULL DEFAULT 'gray' CHECK (color IN ('gray', 'blue', 'amber', 'green')),
     target_date DATE,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    description TEXT,
 );
 
 CREATE TABLE tasks (
@@ -37,4 +39,10 @@ CREATE TABLE task_tags (
     task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (task_id, tag_id)
+);
+
+CREATE TABLE goal_tags (
+    goal_id INTEGER NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+    tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (goal_id, tag_id)
 );

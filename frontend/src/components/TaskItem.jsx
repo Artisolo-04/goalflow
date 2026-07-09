@@ -7,6 +7,7 @@ import SubtaskChecklist from './SubtaskChecklist';
 import TagPicker from './TagPicker';
 import PriorityBadge from './PriorityBadge';
 import { updateTask, deleteTask, fetchTaskById } from '../api/tasks';
+import { assignTagToTask, removeTagFromTask } from '../api/tags';
 import { dueDateInfo } from '../lib/date';
 import Modal from '../ui/Modal';
 import { useToast } from '../context/ToastContext';
@@ -36,8 +37,8 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
   const { label: dateLabel, tone } = dueDateInfo(task.due_date, task.completed);
   const { edge, badge, icon: ToneIcon } = TONE[tone];
 
-  async function loadDetail() {
-    setLoadingDetail(true);
+  async function loadDetail({ silent = false } = {}) {
+    if (!silent) setLoadingDetail(true);
     try {
       const full = await fetchTaskById(task.id);
       setSubtasks(full.subtasks);
@@ -45,7 +46,7 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
     } catch (err) {
       toast.error(err.message);
     } finally {
-      setLoadingDetail(false);
+      if (!silent) setLoadingDetail(false);
     }
   }
 
@@ -223,11 +224,19 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Tags</span>
-                  <TagPicker taskId={task.id} assignedTags={tags} allTags={allTags} onTagsRefresh={onTagsRefresh} onChange={loadDetail} />
+                  <TagPicker
+                    entityId={task.id}
+                    assignedTags={tags}
+                    allTags={allTags}
+                    onTagsRefresh={onTagsRefresh}
+                    onChange={() => loadDetail({ silent: true })}
+                    assignTag={assignTagToTask}
+                    removeTag={removeTagFromTask}
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Subtasks</span>
-                  <SubtaskChecklist taskId={task.id} subtasks={subtasks} onChange={loadDetail} />
+                  <SubtaskChecklist taskId={task.id} subtasks={subtasks} onChange={() => loadDetail({ silent: true })} />
                 </div>
               </>
             )}

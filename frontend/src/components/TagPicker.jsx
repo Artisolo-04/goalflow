@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Plus, Pencil } from 'lucide-react';
 import Tag from '../ui/Tag';
-import { createTag, updateTag, assignTagToTask, removeTagFromTask } from '../api/tags';
+import { createTag, updateTag } from '../api/tags';
 
 const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
 const COLOR_HEX = { gray: '#6b7280', blue: '#3b82f6', amber: '#f59e0b', green: '#10b981' };
 
-
-function TagPicker({ taskId, assignedTags, allTags, onTagsRefresh, onChange }) {
+function TagPicker({ entityId, assignedTags, allTags, onTagsRefresh, onChange, assignTag, removeTag }) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState('');
@@ -17,8 +16,8 @@ function TagPicker({ taskId, assignedTags, allTags, onTagsRefresh, onChange }) {
   const assignedIds = new Set(assignedTags.map((t) => t.id));
 
   async function handleToggle(tag) {
-    if (assignedIds.has(tag.id)) await removeTagFromTask(taskId, tag.id);
-    else await assignTagToTask(taskId, tag.id);
+    if (assignedIds.has(tag.id)) await removeTag(entityId, tag.id);
+    else await assignTag(entityId, tag.id);
     onChange();
   }
 
@@ -37,7 +36,7 @@ function TagPicker({ taskId, assignedTags, allTags, onTagsRefresh, onChange }) {
         await updateTag(editingId, { name, color });
       } else {
         const tag = await createTag({ name, color });
-        await assignTagToTask(taskId, tag.id);
+        await assignTag(entityId, tag.id);
         onChange();
       }
       await onTagsRefresh();

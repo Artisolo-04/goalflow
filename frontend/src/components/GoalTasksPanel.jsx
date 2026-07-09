@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import TagPicker from './TagPicker';
+import { updateGoal, assignTagToGoal, removeTagFromGoal } from '../api/goals';
 import { Trash2, Plus, Link2, Unlink, Calendar } from 'lucide-react';
 import Checkbox from '../ui/Checkbox';
 import DatePicker from '../ui/DatePicker';
@@ -99,7 +101,7 @@ function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onT
   );
 }
 
-function GoalTasksPanel({ goalId, tasks, allTasks, onChange }) {
+function GoalTasksPanel({ goalId, tasks, allTasks, goal, allTags, onTagsRefresh, onChange }) {
 
   const toast = useToast();
   const [newTitle, setNewTitle] = useState('');
@@ -108,6 +110,14 @@ function GoalTasksPanel({ goalId, tasks, allTasks, onChange }) {
   const [adding, setAdding] = useState(false);
   const [linkTaskId, setLinkTaskId] = useState(null);
   const [linking, setLinking] = useState(false);
+  const [descDraft, setDescDraft] = useState(goal?.description || '');
+  const [editingDesc, setEditingDesc] = useState(false);
+
+  async function handleDescSave() {
+    await updateGoal(goalId, { description: descDraft.trim() });
+    setEditingDesc(false);
+    onChange();
+  }
 
   const unassignedTasks = (allTasks || []).filter((t) => !t.goal_id);
   const linkOptions = unassignedTasks.map((t) => ({ label: t.title, value: t.id }));
@@ -202,6 +212,52 @@ function GoalTasksPanel({ goalId, tasks, allTasks, onChange }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2 pb-4 border-b border-gray-800">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Description</span>
+        {editingDesc ? (
+          <div className="flex flex-col gap-2">
+            <textarea
+              autoFocus
+              value={descDraft}
+              onChange={(e) => setDescDraft(e.target.value)}
+              rows={3}
+              placeholder="Add a description or notes..."
+              className="w-full bg-gray-800 text-gray-100 placeholder-gray-500 border-2 border-indigo-500 rounded-lg px-3 py-2 text-sm outline-none resize-none"
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setDescDraft(goal?.description || ''); setEditingDesc(false); }} className="text-xs font-medium text-gray-400 hover:text-gray-200 px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleDescSave} className="text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-400 px-3 py-1 rounded-lg transition-colors">
+                Save
+              </button>
+            </div>
+          </div>
+        ) : goal?.description ? (
+          <p onClick={() => setEditingDesc(true)} className="text-sm text-gray-300 cursor-text hover:text-gray-100 transition-colors whitespace-pre-wrap">
+            {goal.description}
+          </p>
+        ) : (
+          <button onClick={() => setEditingDesc(true)} className="text-xs text-gray-600 hover:text-gray-400 transition-colors text-left w-fit">
+            + Add description
+          </button>
+        )}
+      </div>
+
+      {allTags && (
+        <div className="flex flex-col gap-2 pb-4 border-b border-gray-800">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Tags</span>
+          <TagPicker
+            entityId={goalId}
+            assignedTags={goal?.tags || []}
+            allTags={allTags}
+            onTagsRefresh={onTagsRefresh}
+            onChange={onChange}
+            assignTag={assignTagToGoal}
+            removeTag={removeTagFromGoal}
+          />
+        </div>
+      )}
       <div className="flex flex-col gap-2 max-h-80 overflow-y-auto scrollbar-hide pr-1">
         {tasks.length === 0 ? (
           <p className="text-xs text-gray-500">No tasks linked to this goal yet.</p>

@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Check } from 'lucide-react';
 import { fetchGoals, createGoal } from '../api/goals';
 import { fetchTasks } from '../api/tasks';
+import { fetchTags } from '../api/tags';
 import GoalCard from '../components/GoalCard';
 import Input from '../ui/Input';
 import DatePicker from '../ui/DatePicker';
@@ -27,6 +28,14 @@ const SORT_OPTIONS = [
   { label: 'Progress: lowest', value: 'progress_asc' },
 ];
 
+const COLOR_SWATCH = {
+  gray: 'bg-gray-400',
+  blue: 'bg-blue-400',
+  amber: 'bg-amber-400',
+  green: 'bg-emerald-400',
+};
+const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
+
 function getStatusBucket(progress) {
   if (progress === 0) return 'not_started';
   if (progress === 100) return 'complete';
@@ -37,9 +46,13 @@ function GoalsPage() {
   const toast = useToast();
   const [goals, setGoals] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [color, setColor] = useState('gray');
   const [targetDate, setTargetDate] = useState(null);
   const [pickingDate, setPickingDate] = useState(false);
 
@@ -50,9 +63,10 @@ function GoalsPage() {
   async function loadAll({ silent = false } = {}) {
     if (!silent) setLoading(true);
     try {
-      const [goalData, taskData] = await Promise.all([fetchGoals(), fetchTasks()]);
+      const [goalData, taskData, tagData] = await Promise.all([fetchGoals(), fetchTasks(), fetchTags()]);
       setGoals(goalData);
       setTasks(taskData);
+      setAllTags(tagData);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -64,12 +78,19 @@ function GoalsPage() {
     loadAll();
   }, []);
 
+  async function refreshTags() {
+    const data = await fetchTags();
+    setAllTags(data);
+  }
+
   async function handleCreate() {
     if (!title.trim()) return;
     try {
-      await createGoal({ title, target_date: targetDate });
+      await createGoal({ title, target_date: targetDate, description: description.trim() || null, color });
       toast.success('Goal created');
       setTitle('');
+      setDescription('');
+      setColor('gray');
       setTargetDate(null);
       setModalOpen(false);
       loadAll();
@@ -94,10 +115,8 @@ function GoalsPage() {
 
     result = [...result].sort((a, b) => {
       switch (sortBy) {
-        case 'created_asc':
-          return a.id - b.id;
-        case 'created_desc':
-          return b.id - a.id;
+        case 'created_asc': return a.id - b.id;
+        case 'created_desc': return b.id - a.id;
         case 'date_asc':
           if (!a.target_date) return 1;
           if (!b.target_date) return -1;
@@ -106,12 +125,9 @@ function GoalsPage() {
           if (!a.target_date) return 1;
           if (!b.target_date) return -1;
           return b.target_date.localeCompare(a.target_date);
-        case 'progress_desc':
-          return b.progress - a.progress;
-        case 'progress_asc':
-          return a.progress - b.progress;
-        default:
-          return 0;
+        case 'progress_desc': return b.progress - a.progress;
+        case 'progress_asc': return a.progress - b.progress;
+        default: return 0;
       }
     });
 
@@ -181,6 +197,8 @@ function GoalsPage() {
                 goal={goal}
                 tasks={tasksByGoal[goal.id] || []}
                 allTasks={tasks}
+                allTags={allTags}
+                onTagsRefresh={refreshTags}
                 onChange={() => loadAll({ silent: true })}
               />
             ))}
@@ -196,6 +214,36 @@ function GoalsPage() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Get fit this year"
           />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-300">Description (optional)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Why does this goal matter to you?"
+              rows={3}
+              className="w-full bg-gray-800 text-gray-100 placeholder-gray-500 border-2 border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 transition-colors resize-none"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-300">Color</label>
+            <div className="flex items-center gap-2">
+              {COLOR_OPTIONS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  className={`w-7 h-7 rounded-md ${COLOR_SWATCH[c]} flex items-center justify-center transition-transform hover:scale-105 ${
+                    c === color ? 'ring-2 ring-offset-2 ring-offset-gray-900 ring-indigo-400' : ''
+                  }`}
+                >
+                  {c === color && <Check size={13} className="text-gray-900" strokeWidth={3} />}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-300">Target date (optional)</label>
             <button
