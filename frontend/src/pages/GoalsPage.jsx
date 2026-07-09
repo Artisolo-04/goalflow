@@ -153,8 +153,8 @@ function GoalsPage() {
       </div>
 
       {!loading && goals.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-          <div className="relative flex-1">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               value={search}
@@ -163,11 +163,12 @@ function GoalsPage() {
               className="w-full bg-gray-800 text-gray-100 placeholder-gray-500 border-2 border-gray-700 rounded-lg pl-8 pr-3 py-2 text-sm outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
-          <div className="flex gap-2">
-            <div className="w-40 shrink-0">
+
+          <div className="flex w-full gap-2 sm:w-auto sm:shrink-0">
+            <div className="min-w-0 flex-1 sm:w-40 sm:flex-none">
               <Dropdown options={STATUS_OPTIONS} value={statusFilter} onChange={setStatusFilter} />
             </div>
-            <div className="w-48 shrink-0">
+            <div className="min-w-0 flex-1 sm:w-48 sm:flex-none">
               <Dropdown options={SORT_OPTIONS} value={sortBy} onChange={setSortBy} />
             </div>
           </div>

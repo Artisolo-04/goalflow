@@ -11,7 +11,7 @@ function MobileNav({ activeTab, setActiveTab }) {
         paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
       }}
     >
-      <nav className="flex flex-1 bg-gray-900/95 backdrop-blur-lg border border-gray-800 rounded-2xl px-2 justify-around shadow-2xl shadow-black/40 py-2">
+      <nav className="flex flex-1 bg-gray-900/95 backdrop-blur-lg border border-gray-800 rounded-2xl px-2 justify-between shadow-2xl shadow-black/40 py-2">
         {MAIN_TABS.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -30,7 +30,7 @@ function MobileNav({ activeTab, setActiveTab }) {
         })}
       </nav>
 
-      <nav className="flex bg-gray-900/95 backdrop-blur-lg border border-gray-800 rounded-2xl px-2 justify-around shadow-2xl shadow-black/40 py-2">
+      <nav className="flex bg-gray-900/95 backdrop-blur-lg border border-gray-800 rounded-2xl px-2 justify-between shadow-2xl shadow-black/40 py-2">
         <button
           onClick={() => setActiveTab(TAGS_TAB.id)}
           className={`flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl transition-all duration-200 active:scale-90 ${
