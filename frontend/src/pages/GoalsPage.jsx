@@ -28,13 +28,12 @@ const SORT_OPTIONS = [
   { label: 'Progress: lowest', value: 'progress_asc' },
 ];
 
+const COLOR_OPTIONS = ['gray','red','orange','amber','green','teal','cyan','blue','indigo','purple','pink','rose'];
 const COLOR_SWATCH = {
-  gray: 'bg-gray-400',
-  blue: 'bg-blue-400',
-  amber: 'bg-amber-400',
-  green: 'bg-emerald-400',
+  gray: 'bg-gray-400', red: 'bg-red-400', orange: 'bg-orange-400', amber: 'bg-amber-400',
+  green: 'bg-emerald-400', teal: 'bg-teal-400', cyan: 'bg-cyan-400', blue: 'bg-blue-400',
+  indigo: 'bg-indigo-400', purple: 'bg-purple-400', pink: 'bg-pink-400', rose: 'bg-rose-400',
 };
-const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
 
 function getStatusBucket(progress) {
   if (progress === 0) return 'not_started';
@@ -228,7 +227,7 @@ function GoalsPage() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-300">Color</label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center flex-wrap gap-2 max-w-full">
               {COLOR_OPTIONS.map((c) => (
                 <button
                   key={c}

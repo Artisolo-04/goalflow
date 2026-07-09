@@ -7,17 +7,16 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ScrollArea from '../components/ScrollArea';
 
-const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
+const COLOR_OPTIONS = ['gray','red','orange','amber','green','teal','cyan','blue','indigo','purple','pink','rose'];
 const COLOR_SWATCH = {
-  gray: 'bg-gray-400',
-  blue: 'bg-blue-400',
-  amber: 'bg-amber-400',
-  green: 'bg-emerald-400',
+  gray: 'bg-gray-400', red: 'bg-red-400', orange: 'bg-orange-400', amber: 'bg-amber-400',
+  green: 'bg-emerald-400', teal: 'bg-teal-400', cyan: 'bg-cyan-400', blue: 'bg-blue-400',
+  indigo: 'bg-indigo-400', purple: 'bg-purple-400', pink: 'bg-pink-400', rose: 'bg-rose-400',
 };
 
 function ColorSwatchPicker({ value, onChange }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center flex-wrap gap-2 max-w-full">
       {COLOR_OPTIONS.map((c) => (
         <button
           key={c}

@@ -4,7 +4,7 @@ import { requireString, optionalString } from '../middleware/validate.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
-const VALID_COLORS = ['gray', 'blue', 'amber', 'green'];
+const VALID_COLORS = ['gray','red','orange','amber','green','teal','cyan','blue','indigo','purple','pink','rose'];
 
 function validateColor(color) {
   if (color === undefined || color === null) return null;

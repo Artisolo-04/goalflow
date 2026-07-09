@@ -14,20 +14,18 @@ const STATUS_TONE = {
 };
 
 const EDGE_COLOR = {
-  gray: 'bg-gray-500',
-  blue: 'bg-blue-500',
-  amber: 'bg-amber-500',
-  green: 'bg-emerald-500',
+  gray: 'bg-gray-500', red: 'bg-red-500', orange: 'bg-orange-500', amber: 'bg-amber-500',
+  green: 'bg-emerald-500', teal: 'bg-teal-500', cyan: 'bg-cyan-500', blue: 'bg-blue-500',
+  indigo: 'bg-indigo-500', purple: 'bg-purple-500', pink: 'bg-pink-500', rose: 'bg-rose-500',
 };
 
 const COLOR_SWATCH = {
-  gray: 'bg-gray-400',
-  blue: 'bg-blue-400',
-  amber: 'bg-amber-400',
-  green: 'bg-emerald-400',
+  gray: 'bg-gray-400', red: 'bg-red-400', orange: 'bg-orange-400', amber: 'bg-amber-400',
+  green: 'bg-emerald-400', teal: 'bg-teal-400', cyan: 'bg-cyan-400', blue: 'bg-blue-400',
+  indigo: 'bg-indigo-400', purple: 'bg-purple-400', pink: 'bg-pink-400', rose: 'bg-rose-400',
 };
 
-const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
+const COLOR_OPTIONS = ['gray','red','orange','amber','green','teal','cyan','blue','indigo','purple','pink','rose'];
 const MAX_VISIBLE_TAGS = 2;
 
 function getGoalStatus(progress) {
@@ -146,7 +144,7 @@ function GoalCard({ goal, tasks, allTasks, allTags, onTagsRefresh, onChange }) {
                 className={`w-3.5 h-3.5 rounded-md ${COLOR_SWATCH[goal.color] || COLOR_SWATCH.gray} hover:scale-110 transition-transform`}
               />
               {editingColor && (
-                <div className="absolute left-0 top-full mt-2 z-30 bg-gray-800 border border-gray-700 rounded-lg shadow-xl shadow-black/40 p-1.5 flex gap-1.5">
+                <div className="absolute left-0 top-full mt-2 z-30 w-max bg-gray-800 border border-gray-700 rounded-lg shadow-xl shadow-black/40 p-1.5 grid grid-cols-4 gap-1.5">
                   {COLOR_OPTIONS.map((c) => (
                     <button
                       key={c}

@@ -3,8 +3,12 @@ import { Plus, Pencil } from 'lucide-react';
 import Tag from '../ui/Tag';
 import { createTag, updateTag } from '../api/tags';
 
-const COLOR_OPTIONS = ['gray', 'blue', 'amber', 'green'];
-const COLOR_HEX = { gray: '#6b7280', blue: '#3b82f6', amber: '#f59e0b', green: '#10b981' };
+const COLOR_OPTIONS = ['gray','red','orange','amber','green','teal','cyan','blue','indigo','purple','pink','rose'];
+const COLOR_HEX = {
+  gray: '#6b7280', red: '#ef4444', orange: '#f97316', amber: '#f59e0b',
+  green: '#10b981', teal: '#14b8a6', cyan: '#06b6d4', blue: '#3b82f6',
+  indigo: '#6366f1', purple: '#a855f7', pink: '#ec4899', rose: '#f43f5e',
+};
 
 function TagPicker({ entityId, assignedTags, allTags, onTagsRefresh, onChange, assignTag, removeTag }) {
   const [formOpen, setFormOpen] = useState(false);
@@ -52,7 +56,7 @@ function TagPicker({ entityId, assignedTags, allTags, onTagsRefresh, onChange, a
         {allTags.map((tag) => (
           <div key={tag.id} className="relative group/tag">
             <button onClick={() => handleToggle(tag)} type="button">
-              <Tag label={tag.name} color={assignedIds.has(tag.id) ? tag.color : 'gray'} />
+              <Tag label={tag.name} color={tag.color} active={assignedIds.has(tag.id)} />
             </button>
             <button
               type="button"
