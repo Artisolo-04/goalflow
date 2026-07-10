@@ -9,7 +9,7 @@ CREATE TABLE goals (
     color TEXT NOT NULL DEFAULT 'gray' CHECK (color IN ('gray', 'blue', 'amber', 'green')),
     target_date DATE,
     created_at TIMESTAMP DEFAULT NOW(),
-    description TEXT,
+    description TEXT
 );
 
 CREATE TABLE tasks (
