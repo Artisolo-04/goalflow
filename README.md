@@ -139,6 +139,17 @@ The app should now be running locally (Vite will print the local URL, typically 
 
 ---
 
+## 🧪 Testing
+
+60 tests covering goals, tasks, tags, subtasks, and progress-rollup math — including validation errors, 404s, tag conflicts, and full HTTP-level checks against the real API routes.
+
+```bash
+cd backend
+npm test
+```
+
+---
+
 ## 🗺️ Roadmap Ideas
 
 - User accounts / authentication
