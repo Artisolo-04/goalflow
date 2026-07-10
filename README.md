@@ -56,12 +56,12 @@ Built as a personal full-stack project with a custom React UI (no component libr
 - SQL migrations for schema evolution
 - Centralized error handling (`asyncHandler` + global error middleware)
 - Request validation middleware
-- Automated tests with `node:test` (progress rollup math)
 
 ---
 
 ## 📁 Project Structure
 
+```
 goalflow/
 ├── backend/
 │   ├── db/
@@ -76,19 +76,18 @@ goalflow/
 │   │   ├── goals.js
 │   │   ├── tags.js
 │   │   └── tasks.js
-│   ├── tests/
-│   │   └── progress.test.js
 │   └── server.js
 └── frontend/
-├── src/
-│   ├── api/                # API client functions (goals, tasks, tags)
-│   ├── components/         # Feature components (GoalCard, CalendarGrid, TaskItem, etc.)
-│   ├── context/            # ToastContext
-│   ├── layout/             # AppLayout, DesktopNav, MobileNav
-│   ├── lib/                # date & priority helpers
-│   ├── pages/               # GoalsPage, TasksPage, CalendarPage, TagsPage
-│   └── ui/                 # Custom UI primitives (Modal, Dropdown, DatePicker, etc.)
-└── vite.config.js
+    ├── src/
+    │   ├── api/                # API client functions (goals, tasks, tags)
+    │   ├── components/         # Feature components (GoalCard, CalendarGrid, TaskItem, etc.)
+    │   ├── context/            # ToastContext
+    │   ├── layout/             # AppLayout, DesktopNav, MobileNav
+    │   ├── lib/                # date & priority helpers
+    │   ├── pages/              # GoalsPage, TasksPage, CalendarPage, TagsPage
+    │   └── ui/                 # Custom UI primitives (Modal, Dropdown, DatePicker, etc.)
+    └── vite.config.js
+```
 
 ---
 
@@ -137,16 +136,6 @@ npm run dev
 ```
 
 The app should now be running locally (Vite will print the local URL, typically `http://localhost:5173`), connected to the API on the port set in your `.env`.
-
----
-
-## 🧪 Testing
-
-Backend progress-rollup logic is covered by an automated test:
-```bash
-cd backend
-node --test tests/progress.test.js
-```
 
 ---
 
