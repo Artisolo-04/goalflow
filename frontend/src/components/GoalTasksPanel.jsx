@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import TagPicker from './TagPicker';
 import { updateGoal, assignTagToGoal, removeTagFromGoal } from '../api/goals';
-import { Trash2, Plus, Link2, Unlink, Calendar } from 'lucide-react';
+import { Trash2, Plus, Link2, Unlink, Calendar, ListChecks } from 'lucide-react';
 import Checkbox from '../ui/Checkbox';
 import DatePicker from '../ui/DatePicker';
 import Dropdown from '../ui/Dropdown';
@@ -34,11 +34,11 @@ function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onT
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-colors ${
+      className={`flex flex-col gap-3 border rounded-xl px-4 py-3 transition-colors sm:flex-row sm:items-center sm:justify-between ${
         task.completed ? 'bg-emerald-500/5 border-emerald-500/15' : 'bg-black/20 border-gray-800/60'
       }`}
     >
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5 p-2">
         <Checkbox checked={task.completed} onChange={(e) => onToggle(task.id, e.target.checked)} />
         {editingTitle ? (
           <input
@@ -53,7 +53,7 @@ function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onT
           <span
             onClick={() => setEditingTitle(true)}
             title={task.title}
-            className={`truncate cursor-text hover:text-indigo-300 transition-colors text-sm ${
+            className={`min-w-0 flex-1 truncate cursor-text text-sm transition-colors hover:text-indigo-300 ${
               task.completed ? 'line-through text-gray-500' : 'text-gray-100'
             }`}
           >
@@ -62,16 +62,16 @@ function GoalTaskRow({ task, onToggle, onPriorityChange, onDelete, onUnlink, onT
         )}
       </div>
 
-      <div className="flex items-center gap-4 shrink-0">
-        <div className="w-full flex justify-start px-6">
+      <div className="flex items-center justify-between gap-3 pl-8 sm:shrink-0 sm:justify-end sm:pl-0">
+        <div className="min-w-[100px] shrink-0">
           <button
             onClick={() => setEditingDate(true)}
-            className="text-[11px] font-mono text-gray-500 hover:text-indigo-300 transition-colors whitespace-nowrap text-right"
+            className="text-[11px] font-mono text-gray-500 hover:text-indigo-300 transition-colors whitespace-nowrap text-right pl-1"
           >
             {task.due_date}
           </button>
         </div>
-        <div className="w-[70px] flex justify-end">
+        <div className="w-[80px] flex justify-end">
           <PriorityBadge value={task.priority || 'medium'} onChange={(p) => onPriorityChange(task.id, p)} />
         </div>
         <button
@@ -112,6 +112,7 @@ function GoalTasksPanel({ goalId, tasks, allTasks, goal, allTags, onTagsRefresh,
   const [linking, setLinking] = useState(false);
   const [descDraft, setDescDraft] = useState(goal?.description || '');
   const [editingDesc, setEditingDesc] = useState(false);
+  const [showTasksModal, setShowTasksModal] = useState(false);
 
   async function handleDescSave() {
     await updateGoal(goalId, { description: descDraft.trim() });
@@ -258,23 +259,44 @@ function GoalTasksPanel({ goalId, tasks, allTasks, goal, allTags, onTagsRefresh,
           />
         </div>
       )}
-      <div className="flex flex-col gap-2 max-h-80 overflow-y-auto scrollbar-hide pr-1">
-        {tasks.length === 0 ? (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Linked tasks
+          </span>
+
+          {tasks.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowTasksModal(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-100 transition-colors hover:border-indigo-500"
+            >
+              <ListChecks size={14} />
+              View all {tasks.length}
+            </button>
+          )}
+        </div>
+
+        {tasks.length === 0 && (
           <p className="text-xs text-gray-500">No tasks linked to this goal yet.</p>
-        ) : (
-          tasks.map((task) => (
-            <GoalTaskRow
-              key={task.id}
-              task={task}
-              onToggle={handleToggle}
-              onPriorityChange={handlePriorityChange}
-              onDelete={handleDelete}
-              onUnlink={handleUnlink}
-              onTitleSave={handleTitleSave}
-              onDueDateSave={handleDueDateSave}
-            />
-          ))
         )}
+
+        <Modal open={showTasksModal} onClose={() => setShowTasksModal(false)} title="Linked tasks" size='xl'>
+          <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1 scrollbar-hide">
+            {tasks.map((task) => (
+              <GoalTaskRow
+                key={task.id}
+                task={task}
+                onToggle={handleToggle}
+                onPriorityChange={handlePriorityChange}
+                onDelete={handleDelete}
+                onUnlink={handleUnlink}
+                onTitleSave={handleTitleSave}
+                onDueDateSave={handleDueDateSave}
+              />
+            ))}
+          </div>
+        </Modal>
       </div>
 
       {unassignedTasks.length > 0 && (

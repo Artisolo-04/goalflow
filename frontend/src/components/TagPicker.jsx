@@ -82,31 +82,33 @@ function TagPicker({ entityId, assignedTags, allTags, onTagsRefresh, onChange, a
 
       {formOpen && (
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg p-2">
+          <div className="flex items-end gap-2 bg-gray-800 border border-gray-700 rounded-lg p-2 flex-col">
             <input
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tag name"
-              className="bg-transparent text-sm text-gray-100 outline-none flex-1 min-w-0"
+              className="bg-transparent text-sm text-gray-100 outline-none flex-1 min-w-0 p-1 py-2 w-full"
             />
-            <div className="flex gap-1">
+            <div className="flex w-full max-w-full flex-wrap items-center gap-2 px-1 justify-start sm:justify-between">
               {COLOR_OPTIONS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-4 h-4 rounded-full border-2 ${color === c ? 'border-white' : 'border-transparent'}`}
+                  className={`w-4 h-4 rounded-md border-2 ${color === c ? 'border-white' : 'border-transparent'}`}
                   style={{ backgroundColor: COLOR_HEX[c] }}
                 />
               ))}
             </div>
-            <button type="button" onClick={handleSave} className="text-xs font-medium text-indigo-400 hover:text-indigo-300">
-              {editingId ? 'Save' : 'Add'}
-            </button>
-            <button type="button" onClick={() => setFormOpen(false)} className="text-xs text-gray-500 hover:text-gray-300">
-              Cancel
-            </button>
+            <div className='flex gap-2 p-1 py-2'>
+              <button type="button" onClick={handleSave} className="text-xs font-medium text-indigo-400 hover:text-indigo-300">
+                {editingId ? 'Save' : 'Add'}
+              </button>
+              <button type="button" onClick={() => setFormOpen(false)} className="text-xs text-gray-500 hover:text-gray-300">
+                Cancel
+              </button>
+            </div>
           </div>
           {error && <span className="text-xs text-red-400 pl-1">{error}</span>}
         </div>

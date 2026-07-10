@@ -148,7 +148,7 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
         hover:border-gray-700 hover:shadow-lg hover:shadow-black/30
       `}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1 pt-0.5 flex items-start gap-2.5">
           <div className="pt-0.5">
             <Checkbox checked={task.completed} onChange={(e) => handleToggleCompleted(e.target.checked)} />
@@ -166,7 +166,7 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
           ) : (
             <span
               onClick={() => setEditingTitle(true)}
-              className={`font-display text-[15px] font-medium cursor-text hover:text-indigo-300 transition-colors ${
+              className={`min-w-0 flex-1 font-display text-[15px] font-medium cursor-text hover:text-indigo-300 transition-colors ${
                 task.completed ? 'line-through text-gray-500' : 'text-gray-100'
               }`}
             >
@@ -175,7 +175,7 @@ function TaskItem({ task, onChange, allTags, onTagsRefresh, goals }) {
           )}
         </div>
 
-        <div className="shrink-0 flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 pl-8 sm:shrink-0 sm:pl-0">
           <PriorityBadge value={task.priority || 'medium'} onChange={handlePriorityChange} />
 
           <>
